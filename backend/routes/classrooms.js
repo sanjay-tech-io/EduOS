@@ -177,20 +177,22 @@ router.get('/attendance/my', auth(['student']), async (req, res) => {
   }
 });
 
-// Enter/update marks
+// Enter/update marks (new format with exam_type)
 router.post('/:id/marks', auth(['faculty']), async (req, res) => {
   try {
-    const { student_id, internal_marks, test_marks } = req.body;
+    const { student_id, exam_type, marks, subject_code, subject_title } = req.body;
 
-    if (student_id === undefined || internal_marks === undefined || test_marks === undefined) {
-      return res.status(400).json({ message: 'Please provide student_id, internal_marks, and test_marks' });
+    if (!student_id || !exam_type || marks === undefined) {
+      return res.status(400).json({ message: 'Please provide student_id, exam_type, and marks' });
     }
 
+    // Convert marks to number to avoid string issues
+    const marksValue = Number(marks) || 0;
+
     await pool.query(
-      `INSERT INTO marks (student_id, classroom_id, internal_marks, test_marks) 
-       VALUES (?, ?, ?, ?) 
-       ON DUPLICATE KEY UPDATE internal_marks = ?, test_marks = ?`,
-      [student_id, req.params.id, internal_marks, test_marks, internal_marks, test_marks]
+      `INSERT INTO marks (student_id, classroom_id, exam_type, marks, subject_code, subject_title) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [student_id, req.params.id, exam_type, marksValue, subject_code || null, subject_title || null]
     );
 
     res.json({ message: 'Marks updated successfully' });

@@ -63,18 +63,45 @@ CREATE TABLE attendance (
   UNIQUE KEY unique_attendance (student_id, classroom_id, date)
 );
 
--- Marks table
+-- Marks table (updated with exam_type support)
 CREATE TABLE marks (
   id INT AUTO_INCREMENT PRIMARY KEY,
   student_id INT NOT NULL,
   classroom_id INT NOT NULL,
-  internal_marks INT DEFAULT 0 CHECK (internal_marks >= 0 AND internal_marks <= 100),
-  test_marks INT DEFAULT 0 CHECK (test_marks >= 0 AND test_marks <= 100),
+  exam_type VARCHAR(50) NOT NULL,
+  subject_code VARCHAR(20),
+  subject_title VARCHAR(100),
+  marks INT DEFAULT 0 CHECK (marks >= 0 AND marks <= 100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+);
+
+-- Assignments table for Classroom
+CREATE TABLE IF NOT EXISTS assignments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  classroom_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  due_date DATETIME,
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_marks (student_id, classroom_id)
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Submissions table
+CREATE TABLE IF NOT EXISTS submissions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  assignment_id INT NOT NULL,
+  student_id INT NOT NULL,
+  file_name VARCHAR(255),
+  file_path VARCHAR(500),
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_submission (assignment_id, student_id)
 );
 
 -- Circulars table

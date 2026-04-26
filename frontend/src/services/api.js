@@ -21,11 +21,11 @@ export const getClassroom = (id) => API.get(`/classrooms/${id}`);
 export const createClassroom = (data) => API.post('/classrooms', data);
 export const enrollStudent = (classroomId, studentId) => API.post(`/classrooms/${classroomId}/enroll`, { student_id: studentId });
 
-export const markAttendance = (classroomId, data) => API.post(`/classrooms/${classroomId}/attendance`, data);
+export const markAttendance = (studentId, classroomId, data) => API.post(`/classrooms/${classroomId}/attendance`, { student_id: studentId, ...data });
 export const getAttendance = (classroomId) => API.get(`/classrooms/${classroomId}/attendance`);
 export const getMyAttendance = () => API.get('/classrooms/attendance/my');
 
-export const enterMarks = (classroomId, data) => API.post(`/classrooms/${classroomId}/marks`, data);
+export const enterMarks = (studentId, classroomId, data) => API.post(`/classrooms/${classroomId}/marks`, { student_id: studentId, ...data });
 export const getMarks = (classroomId) => API.get(`/classrooms/${classroomId}/marks`);
 export const getMyMarks = () => API.get('/classrooms/marks/my');
 
